@@ -4,7 +4,7 @@ Enforce virtual environment usage for Python projects that require third-party p
 
 Works with: **OpenCode**, **Claude Code**, **Cursor**, **Cline**, and other AI coding assistants.
 
-[中文说明](#中文说明)
+[中文说明](README_CN.md)
 
 ## Features
 
@@ -68,65 +68,6 @@ else { python -m venv .venv; .\.venv\Scripts\Activate.ps1 }
 
 | File | Install Command |
 |------|-----------------|
-| `requirements.txt` | `pip install -r requirements.txt` |
-| `pyproject.toml` | `pip install -e .` |
-| `pyproject.toml` + `poetry.lock` | `poetry install` |
-| `pyproject.toml` + `uv.lock` | `uv sync` |
-| `environment.yml` | `conda env create -f environment.yml` |
-
----
-
-## 中文说明
-
-为需要第三方包的 Python 项目强制使用虚拟环境。
-
-### 功能
-
-- ✅ 安装包或使用第三方依赖时必须使用 venv
-- ✅ 复用现有虚拟环境（`.venv`、`venv`、`env`、`.env`）
-- ✅ 不存在时自动创建
-- ✅ 支持 `uv`（推荐），自动 fallback 到标准 `venv`
-- ✅ 支持 Conda/Mamba 环境
-- ✅ 跨平台（Linux、macOS、Windows）
-- ✅ **简单的标准库命令可跳过 venv**
-
-### 何时需要 venv
-
-| 场景 | 需要? |
-|------|-------|
-| `pip install` / `uv pip install` | ✅ 是 |
-| 运行使用第三方库的脚本 | ✅ 是 |
-| 有 `requirements.txt` / `pyproject.toml` 的项目 | ✅ 是 |
-
-### 何时不需要 venv
-
-| 场景 | 示例 |
-|------|------|
-| 简单的标准库单行命令 | `python3 -c "print('hello')"` |
-| 仅使用内置模块 | `python3 -c "import json; ..."` |
-| 版本检查 | `python3 --version` |
-
-### 安装
-
-#### OpenCode
-```bash
-cd ~/.config/opencode/skills
-git clone https://github.com/cikichen/skill-python-venv.git python-venv
-```
-
-#### Claude Code
-```bash
-cd ~/.claude/skills
-git clone https://github.com/cikichen/skill-python-venv.git python-venv
-```
-
-#### 其他 AI 助手
-将 `SKILL.md` 复制到你的助手的自定义指令或技能目录。
-
-### 项目类型检测
-
-| 文件 | 安装命令 |
-|------|----------|
 | `requirements.txt` | `pip install -r requirements.txt` |
 | `pyproject.toml` | `pip install -e .` |
 | `pyproject.toml` + `poetry.lock` | `poetry install` |
