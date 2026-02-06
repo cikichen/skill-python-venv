@@ -39,12 +39,23 @@ urllib, http, socket, threading, multiprocessing, etc.
 ## Workflow (When venv IS Required)
 
 ```
-1. Check if .venv exists → If YES, activate and reuse it
-2. If .venv does NOT exist → Create it, then activate
-3. Proceed with Python commands
+1. Check if virtual environment exists (.venv, venv, env, .env) → If YES, activate and reuse it
+2. If NOT exists → Create with uv (if available) or python3 -m venv
+3. Activate, then proceed with Python commands
 ```
 
-## Setup Methods (Choose One)
+## Detecting Existing Virtual Environment
+
+Check in this order (first match wins):
+```bash
+# Common virtual environment directory names
+.venv/  →  Most common (preferred)
+venv/   →  Also common
+env/    →  Sometimes used
+.env/   →  Less common (be careful: may conflict with dotenv files)
+```
+
+## Setup Methods
 
 ### Option 1: uv (Recommended - Faster)
 
@@ -52,81 +63,141 @@ urllib, http, socket, threading, multiprocessing, etc.
 # Create virtual environment
 uv venv
 
-# Activate it
+# Activate (Linux/macOS)
 source .venv/bin/activate
+
+# Activate (Windows PowerShell)
+.venv\Scripts\Activate.ps1
+
+# Activate (Windows CMD)
+.venv\Scripts\activate.bat
 
 # Install packages
 uv pip install <package>
 ```
 
-### Option 2: Standard venv
+### Option 2: Standard venv (Fallback if uv not installed)
 
 ```bash
 # Create virtual environment
 python3 -m venv .venv
 
-# Activate it
+# Activate (Linux/macOS)
 source .venv/bin/activate
+
+# Activate (Windows PowerShell)
+.venv\Scripts\Activate.ps1
+
+# Activate (Windows CMD)
+.venv\Scripts\activate.bat
 
 # Install packages
 pip install <package>
 ```
 
+### Option 3: Conda/Mamba
+
+```bash
+# Create environment
+conda create -n myenv python=3.11
+
+# Activate
+conda activate myenv
+
+# Install packages
+conda install <package>
+# or
+pip install <package>
+```
+
 ## Workflow Checklist
 
-Before ANY Python operation:
+Before Python operations requiring venv:
 
-1. [ ] Check if `.venv` directory exists: `[ -d .venv ]`
-2. [ ] If exists → **Reuse it**: `source .venv/bin/activate`
-3. [ ] If not exists → Create: `uv venv` or `python3 -m venv .venv`
-4. [ ] Activate: `source .venv/bin/activate`
-5. [ ] Proceed with Python commands
+1. [ ] Check for existing virtual environment (in order): `.venv/`, `venv/`, `env/`, `.env/`
+2. [ ] Also check for conda: `conda info --envs` or check if `CONDA_PREFIX` is set
+3. [ ] If exists → **Reuse it** (activate the found environment)
+4. [ ] If not exists → Create: `uv venv` (preferred) or `python3 -m venv .venv` (fallback)
+5. [ ] Activate and proceed
 
-**Priority: Always reuse existing `.venv` to preserve installed packages.**
+**Priority: Always reuse existing virtual environment to preserve installed packages.**
 
 ## Quick Reference
 
-| Task | Command |
-|------|---------|
-| Create venv (uv) | `uv venv` |
-| Create venv (standard) | `python3 -m venv .venv` |
-| Activate | `source .venv/bin/activate` |
-| Install package (uv) | `uv pip install <pkg>` |
-| Install package (pip) | `pip install <pkg>` |
-| Install from requirements | `uv pip install -r requirements.txt` |
-| Deactivate | `deactivate` |
+| Task | Linux/macOS | Windows |
+|------|-------------|---------|
+| Create venv (uv) | `uv venv` | `uv venv` |
+| Create venv (standard) | `python3 -m venv .venv` | `python -m venv .venv` |
+| Activate | `source .venv/bin/activate` | `.venv\Scripts\activate` |
+| Install package (uv) | `uv pip install <pkg>` | `uv pip install <pkg>` |
+| Install package (pip) | `pip install <pkg>` | `pip install <pkg>` |
+| Install from requirements | `uv pip install -r requirements.txt` | `uv pip install -r requirements.txt` |
+| Install from pyproject.toml | `uv pip install -e .` | `uv pip install -e .` |
+| Deactivate | `deactivate` | `deactivate` |
+| Conda activate | `conda activate <env>` | `conda activate <env>` |
 
 ## Common Patterns
 
-### Standard Pattern (Reuse or Create)
+### Standard Pattern (Linux/macOS) - Reuse or Create with Fallback
 ```bash
-# Check and reuse existing venv, or create new one
-[ -d .venv ] && source .venv/bin/activate || (uv venv && source .venv/bin/activate)
+# Find existing venv or create new one (uv with fallback to venv)
+if [ -d .venv ]; then
+    source .venv/bin/activate
+elif [ -d venv ]; then
+    source venv/bin/activate
+elif [ -d env ]; then
+    source env/bin/activate
+elif command -v uv &> /dev/null; then
+    uv venv && source .venv/bin/activate
+else
+    python3 -m venv .venv && source .venv/bin/activate
+fi
+```
+
+### One-liner (Linux/macOS)
+```bash
+# Quick version: check .venv, fallback to create
+[ -d .venv ] && source .venv/bin/activate || { command -v uv &>/dev/null && uv venv || python3 -m venv .venv; source .venv/bin/activate; }
+```
+
+### Windows PowerShell
+```powershell
+# Find existing venv or create new one
+if (Test-Path .venv) { .\.venv\Scripts\Activate.ps1 }
+elseif (Test-Path venv) { .\venv\Scripts\Activate.ps1 }
+elseif (Get-Command uv -ErrorAction SilentlyContinue) { uv venv; .\.venv\Scripts\Activate.ps1 }
+else { python -m venv .venv; .\.venv\Scripts\Activate.ps1 }
 ```
 
 ### Running a Python Script
 ```bash
 # Activate existing or create new
-[ -d .venv ] && source .venv/bin/activate || (uv venv && source .venv/bin/activate)
+[ -d .venv ] && source .venv/bin/activate || { command -v uv &>/dev/null && uv venv || python3 -m venv .venv; source .venv/bin/activate; }
 
-# Install dependencies if needed
-[ -f requirements.txt ] && uv pip install -r requirements.txt
+# Install dependencies (check both requirements.txt and pyproject.toml)
+[ -f requirements.txt ] && pip install -r requirements.txt
+[ -f pyproject.toml ] && pip install -e .
 
 # Run script
 python script.py
 ```
 
-### Quick One-off Script
-```bash
-[ -d .venv ] && source .venv/bin/activate || (uv venv && source .venv/bin/activate)
-uv pip install pandas  # install needed packages
-python my_script.py
-```
-
 ### Check if venv is Active
 ```bash
-# Should show path containing .venv
+# Should show path containing .venv, venv, or env
 which python
+
+# Or check VIRTUAL_ENV environment variable
+echo $VIRTUAL_ENV
+```
+
+### Check if Conda Environment is Active
+```bash
+# Check CONDA_PREFIX
+echo $CONDA_PREFIX
+
+# List all conda environments
+conda info --envs
 ```
 
 ## Forbidden Actions
@@ -134,6 +205,7 @@ which python
 - Using `pip install` with system Python (always use venv)
 - Installing packages globally
 - Assuming third-party packages are available without explicit installation
+- Overwriting existing virtual environment without checking first
 
 ## Allowed Without venv
 
@@ -141,3 +213,13 @@ which python
 - `python3 -c "import os; print(os.getcwd())"`
 - `python3 --version`
 - Any stdlib-only one-liner
+
+## Project Type Detection
+
+| File Present | Project Type | Install Command |
+|--------------|--------------|-----------------|
+| `requirements.txt` | Traditional | `pip install -r requirements.txt` |
+| `pyproject.toml` | Modern (PEP 517/518) | `pip install -e .` or `uv pip install -e .` |
+| `setup.py` | Legacy | `pip install -e .` |
+| `Pipfile` | Pipenv | `pipenv install` |
+| `environment.yml` | Conda | `conda env create -f environment.yml` |

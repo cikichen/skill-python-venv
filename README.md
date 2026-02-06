@@ -7,9 +7,11 @@ Enforce virtual environment usage for Python projects that require third-party p
 ## Features
 
 - ✅ Require venv when installing packages or using third-party dependencies
-- ✅ Reuse existing `.venv` directory if present
+- ✅ Reuse existing virtual environment (`.venv`, `venv`, `env`, `.env`)
 - ✅ Auto-create if not exists
-- ✅ Support `uv` (recommended, faster) and standard `venv`
+- ✅ Support `uv` (recommended) with fallback to standard `venv`
+- ✅ Support Conda/Mamba environments
+- ✅ Cross-platform (Linux, macOS, Windows)
 - ✅ **Skip venv for simple stdlib-only commands**
 
 ## When venv is Required
@@ -18,7 +20,7 @@ Enforce virtual environment usage for Python projects that require third-party p
 |----------|-----------|
 | `pip install` / `uv pip install` | ✅ YES |
 | Running scripts with third-party imports | ✅ YES |
-| Projects with `requirements.txt` | ✅ YES |
+| Projects with `requirements.txt` / `pyproject.toml` | ✅ YES |
 
 ## When venv is NOT Required
 
@@ -37,16 +39,26 @@ git clone https://github.com/cikichen/opencode-skill-python-venv.git python-venv
 
 ## Quick Reference
 
+### Linux/macOS
 ```bash
-# Standard pattern: reuse or create (when venv IS needed)
-[ -d .venv ] && source .venv/bin/activate || (uv venv && source .venv/bin/activate)
-
-# Install dependencies
-uv pip install -r requirements.txt
-
-# Run script
-python script.py
+# Reuse existing or create new (with uv fallback to venv)
+[ -d .venv ] && source .venv/bin/activate || { command -v uv &>/dev/null && uv venv || python3 -m venv .venv; source .venv/bin/activate; }
 ```
+
+### Windows PowerShell
+```powershell
+if (Test-Path .venv) { .\.venv\Scripts\Activate.ps1 }
+elseif (Get-Command uv -ErrorAction SilentlyContinue) { uv venv; .\.venv\Scripts\Activate.ps1 }
+else { python -m venv .venv; .\.venv\Scripts\Activate.ps1 }
+```
+
+## Project Type Detection
+
+| File | Install Command |
+|------|-----------------|
+| `requirements.txt` | `pip install -r requirements.txt` |
+| `pyproject.toml` | `pip install -e .` |
+| `environment.yml` | `conda env create -f environment.yml` |
 
 ---
 
@@ -57,9 +69,11 @@ python script.py
 ### 功能
 
 - ✅ 安装包或使用第三方依赖时必须使用 venv
-- ✅ 优先复用现有 `.venv` 目录
+- ✅ 复用现有虚拟环境（`.venv`、`venv`、`env`、`.env`）
 - ✅ 不存在时自动创建
-- ✅ 支持 `uv`（推荐，更快）和标准 `venv`
+- ✅ 支持 `uv`（推荐），自动 fallback 到标准 `venv`
+- ✅ 支持 Conda/Mamba 环境
+- ✅ 跨平台（Linux、macOS、Windows）
 - ✅ **简单的标准库命令可跳过 venv**
 
 ### 何时需要 venv
@@ -68,7 +82,7 @@ python script.py
 |------|-------|
 | `pip install` / `uv pip install` | ✅ 是 |
 | 运行使用第三方库的脚本 | ✅ 是 |
-| 有 `requirements.txt` 的项目 | ✅ 是 |
+| 有 `requirements.txt` / `pyproject.toml` 的项目 | ✅ 是 |
 
 ### 何时不需要 venv
 
@@ -84,6 +98,14 @@ python script.py
 cd ~/.config/opencode/skills
 git clone https://github.com/cikichen/opencode-skill-python-venv.git python-venv
 ```
+
+### 项目类型检测
+
+| 文件 | 安装命令 |
+|------|----------|
+| `requirements.txt` | `pip install -r requirements.txt` |
+| `pyproject.toml` | `pip install -e .` |
+| `environment.yml` | `conda env create -f environment.yml` |
 
 ## License
 
