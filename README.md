@@ -1,15 +1,32 @@
 # OpenCode Skill: Python Virtual Environment
 
-Enforce virtual environment usage before any Python operation to avoid polluting the system Python environment.
+Enforce virtual environment usage for Python projects that require third-party packages.
 
 [中文说明](#中文说明)
 
 ## Features
 
-- ✅ Require virtual environment activation before any Python operation
+- ✅ Require venv when installing packages or using third-party dependencies
 - ✅ Reuse existing `.venv` directory if present
 - ✅ Auto-create if not exists
 - ✅ Support `uv` (recommended, faster) and standard `venv`
+- ✅ **Skip venv for simple stdlib-only commands**
+
+## When venv is Required
+
+| Scenario | Required? |
+|----------|-----------|
+| `pip install` / `uv pip install` | ✅ YES |
+| Running scripts with third-party imports | ✅ YES |
+| Projects with `requirements.txt` | ✅ YES |
+
+## When venv is NOT Required
+
+| Scenario | Example |
+|----------|---------|
+| Simple stdlib one-liner | `python3 -c "print('hello')"` |
+| Built-in modules only | `python3 -c "import json; ..."` |
+| Version check | `python3 --version` |
 
 ## Installation
 
@@ -18,27 +35,10 @@ cd ~/.config/opencode/skills
 git clone https://github.com/cikichen/opencode-skill-python-venv.git python-venv
 ```
 
-## Trigger Conditions
-
-This skill is automatically triggered when:
-
-- Running `.py` files
-- Using `pip install` or `uv pip install`
-- Executing `python -c` commands
-- Any task requiring Python packages
-
-## Core Rule
-
-```
-1. Check if .venv exists → If YES, activate and reuse
-2. If NOT exists → Create new virtual environment
-3. Activate, then run Python commands
-```
-
 ## Quick Reference
 
 ```bash
-# Standard pattern: reuse or create
+# Standard pattern: reuse or create (when venv IS needed)
 [ -d .venv ] && source .venv/bin/activate || (uv venv && source .venv/bin/activate)
 
 # Install dependencies
@@ -52,37 +52,37 @@ python script.py
 
 ## 中文说明
 
-强制在任何 Python 操作前使用虚拟环境，避免污染系统 Python 环境。
+为需要第三方包的 Python 项目强制使用虚拟环境。
 
 ### 功能
 
-- ✅ 任何 Python 操作前必须激活虚拟环境
+- ✅ 安装包或使用第三方依赖时必须使用 venv
 - ✅ 优先复用现有 `.venv` 目录
 - ✅ 不存在时自动创建
 - ✅ 支持 `uv`（推荐，更快）和标准 `venv`
+- ✅ **简单的标准库命令可跳过 venv**
+
+### 何时需要 venv
+
+| 场景 | 需要? |
+|------|-------|
+| `pip install` / `uv pip install` | ✅ 是 |
+| 运行使用第三方库的脚本 | ✅ 是 |
+| 有 `requirements.txt` 的项目 | ✅ 是 |
+
+### 何时不需要 venv
+
+| 场景 | 示例 |
+|------|------|
+| 简单的标准库单行命令 | `python3 -c "print('hello')"` |
+| 仅使用内置模块 | `python3 -c "import json; ..."` |
+| 版本检查 | `python3 --version` |
 
 ### 安装
 
 ```bash
 cd ~/.config/opencode/skills
 git clone https://github.com/cikichen/opencode-skill-python-venv.git python-venv
-```
-
-### 触发条件
-
-当你执行以下操作时，此 Skill 会自动触发：
-
-- 运行 `.py` 文件
-- 使用 `pip install` 或 `uv pip install`
-- 执行 `python -c` 命令
-- 任何需要 Python 包的任务
-
-### 核心规则
-
-```
-1. 检查 .venv 是否存在 → 存在则直接激活复用
-2. 不存在 → 创建新的虚拟环境
-3. 激活后再执行 Python 命令
 ```
 
 ## License

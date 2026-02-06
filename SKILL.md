@@ -1,15 +1,42 @@
 ---
 name: python-venv
-description: "MANDATORY for ANY Python usage. Before running any Python code, scripts, or installing packages, you MUST create and activate a virtual environment in the current working directory using uv or venv. This applies to: running .py files, using pip/uv pip install, executing python -c commands, or any task requiring Python packages. Never use system Python directly."
+description: "Before running Python scripts or installing packages, you MUST use a virtual environment in the current working directory. This applies to: running .py files, using pip/uv pip install, or any task requiring third-party packages. Exceptions: simple one-liners using only Python standard library."
 ---
 
 # Python Virtual Environment Requirement
 
 ## Core Rule
 
-**NEVER run Python code or install packages without first ensuring a virtual environment is active in the current working directory.**
+**Use virtual environment when installing packages or running scripts that require third-party dependencies.**
 
-## Workflow (MUST FOLLOW)
+## When Virtual Environment is REQUIRED
+
+| Scenario | Required? | Reason |
+|----------|-----------|--------|
+| `pip install` / `uv pip install` | ✅ YES | Installing packages |
+| Running `.py` files with third-party imports | ✅ YES | Needs dependencies |
+| `python script.py` with `requirements.txt` | ✅ YES | Project dependencies |
+| Multi-file Python projects | ✅ YES | Isolation needed |
+
+## When Virtual Environment is NOT Required
+
+| Scenario | Required? | Example |
+|----------|-----------|---------|
+| Simple one-liner with stdlib only | ❌ NO | `python3 -c "print('hello')"` |
+| Quick math/string operations | ❌ NO | `python3 -c "print(2**10)"` |
+| Using only built-in modules | ❌ NO | `python3 -c "import json; ..."` |
+| Checking Python version | ❌ NO | `python3 --version` |
+
+### Python Standard Library (No venv needed)
+
+These modules are built-in and don't require virtual environment:
+```
+os, sys, json, re, math, datetime, pathlib, subprocess, 
+collections, itertools, functools, argparse, logging,
+urllib, http, socket, threading, multiprocessing, etc.
+```
+
+## Workflow (When venv IS Required)
 
 ```
 1. Check if .venv exists → If YES, activate and reuse it
@@ -104,7 +131,13 @@ which python
 
 ## Forbidden Actions
 
-- Running `python` or `python3` without activating venv first
-- Using `pip install` with system Python
+- Using `pip install` with system Python (always use venv)
 - Installing packages globally
-- Assuming packages are available without explicit installation
+- Assuming third-party packages are available without explicit installation
+
+## Allowed Without venv
+
+- `python3 -c "print('hello')"`
+- `python3 -c "import os; print(os.getcwd())"`
+- `python3 --version`
+- Any stdlib-only one-liner
