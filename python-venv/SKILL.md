@@ -1,13 +1,13 @@
 ---
 name: python-venv
-description: "Before running Python scripts or installing packages, you MUST use a virtual environment in the current working directory. This applies to: running .py files, using pip/uv pip install, or any task requiring third-party packages. Exceptions: simple one-liners using only Python standard library."
+description: "Before running Python scripts or installing packages, check for existing virtual environments and reuse them if found. If no virtual environment exists, ask the user to choose: (1) Create new venv in current directory, (2) Create venv at custom path, or (3) Use system/main Python directly. This applies to: running .py files, using pip/uv pip install, or any task requiring third-party packages. Exceptions: simple one-liners using only Python standard library."
 ---
 
 # Python Virtual Environment Requirement
 
 ## Core Rule
 
-**Use virtual environment when installing packages or running scripts that require third-party dependencies.**
+**Check for existing virtual environments and reuse them. If none exists, ask user to choose: create new venv, use custom path, or use system Python directly.**
 
 ## When Virtual Environment is REQUIRED
 
